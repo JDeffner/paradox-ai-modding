@@ -63,4 +63,4 @@ game or mod files. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE).
+[GPL-3.0](LICENSE), same as the CK3 Modding Toolkit.
