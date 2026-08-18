@@ -17,7 +17,7 @@ the last section covers other agents.
 Clone this repo, then copy the skill folder where your agent looks for skills:
 
 ```bash
-git clone https://github.com/JDeffner/ck3-ai-modding.git
+git clone https://github.com/JDeffner/paradox-ai-modding.git
 ```
 
 - All projects, current user: copy `skills/ck3-modding/` into `~/.claude/skills/`
@@ -28,7 +28,7 @@ A symlink to your clone works too and picks up updates on `git pull`.
 
 ## 2. Give your mod repo a CLAUDE.md
 
-Copy [`templates/CLAUDE.md`](../templates/CLAUDE.md) into your mod repo and fill in the
+Copy [`templates/CLAUDE.md`](../../templates/ck3/CLAUDE.md) into your mod repo and fill in the
 placeholders: your machine's paths (game install, logs folder, mod folder, ck3-tiger
 executable) and your mod's prefix. This is optional (the skill can detect the paths), but
 pinning them saves time at the start of every session and never mis-detects.

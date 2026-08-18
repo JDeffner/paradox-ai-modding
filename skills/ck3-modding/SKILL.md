@@ -12,7 +12,7 @@ description: >-
 ---
 
 <!--
-Maintained in the ck3-ai-modding repo. This skill is fully portable: the
+Maintained in the paradox-ai-modding repo. This skill is fully portable: the
 <game>/<logs>/<mods>/<workshop>/<tiger> placeholders are resolved at the start of a
 session via the Step 0 table below (no build step needed). If you keep copies with your
 machine's paths baked in, treat this file as the source of truth and re-copy rather than
