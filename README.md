@@ -24,7 +24,7 @@ asking the user what they say.
 
 | Path | What |
 |---|---|
-| [`skills/ck3-modding/`](skills/ck3-modding/SKILL.md) | **CK3 skill.** Workflow and routing table, per-system references (script language, events, content, GUI, validation, debugging, compat), 24 deep per-system recipes, pattern notes distilled from flagship Workshop mods, and a mod-vs-mod conflict checker |
+| [`skills/ck3-modding/`](skills/ck3-modding/SKILL.md) | **CK3 skill.** Workflow and routing table, per-system references (script language, events, content, GUI, validation, debugging, compat), 25 deep per-system recipes, pattern notes distilled from flagship Workshop mods, and a mod-vs-mod conflict checker |
 | [`skills/vic3-modding/`](skills/vic3-modding/SKILL.md) | **Victoria 3 skill.** Workflow, golden rules, routing table, and eight reference files (setup, language, economy, content, politics, localization, GUI, validation) |
 | [`skills/vic3-modding/scripts/vic3_docs.py`](skills/vic3-modding/scripts/vic3_docs.py) | Resolves Victoria 3's own docs: identifier lookup, folder-to-schema-doc map, freshness check |
 | [`guides/ck3/`](guides/ck3/getting-started.md) · [`guides/vic3/`](guides/vic3/getting-started.md) | Set up an agent for each game, end to end |
