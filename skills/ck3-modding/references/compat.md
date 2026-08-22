@@ -31,14 +31,13 @@ folder, for the objects you're overriding.)
 
 ## Detection
 
-1. `scripts/check_compat.sh /path/to/mod_a /path/to/mod_b` — reports same-path files,
-   shared top-level keys in `common/`, duplicate loc keys (same-file and cross-file), and
-   `replace_path` directives. Exit 0 = clean, 1 = conflicts. Runs in Git Bash.
+1. `scripts/check_compat.sh /path/to/mod_a /path/to/mod_b` — reports same-path files
+   (`descriptor.mod` and `thumbnail.png` excluded, every mod has those), top-level keys
+   defined by both mods in the same `common/` database folder whatever the filenames are,
+   duplicate loc keys (same-file and cross-file), and `replace_path` directives from every
+   `.mod` at the mod root. Exit 0 = clean, 1 = conflicts. Runs in Git Bash.
 2. `database_conflicts.log` (written at every launch) — ground truth for which file actually
    won each contested override in the running playset.
-3. For key collisions across *differently named* files (which the script's same-path check
-   misses), grep both mods for the same top-level keys:
-   `grep -rhoE '^[a-z_0-9]+ =' modA/common/<folder> modB/common/<folder> | sort | uniq -d`.
 
 ## Resolution
 

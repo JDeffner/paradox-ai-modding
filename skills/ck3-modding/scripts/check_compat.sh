@@ -4,7 +4,9 @@
 #
 # Identifies compatibility issues between mods by checking for:
 #   - Files that exist at the same relative path in both mods
-#   - Top-level scripting keys defined in both mods (common/ files)
+#     (root metadata and thumbnail are ignored, every mod has those)
+#   - Top-level scripting keys defined by both mods in the same common/
+#     database folder, whatever the filenames are
 #   - Duplicate localization keys
 #   - replace_path directives that hard-override vanilla directories
 #
@@ -32,7 +34,7 @@ Arguments:
 
 The script checks for:
   1. File-level conflicts   — same relative path exists in both mods
-  2. Key-level conflicts    — same top-level scripting keys in common/ files
+  2. Key-level conflicts    — same top-level key in the same common/ folder
   3. Localization conflicts  — same loc keys defined in both mods
   4. replace_path warnings  — directories flagged for hard override
 
@@ -63,8 +65,20 @@ for dir in "$MOD1" "$MOD2"; do
     fi
 done
 
-MOD1_NAME="$(basename "$MOD1")"
-MOD2_NAME="$(basename "$MOD2")"
+# A repo's mod tree is normally called `mod/`, which makes a useless label.
+# Fall back to the parent folder's name in that case.
+mod_display_name() {
+    local abs name
+    abs="$(cd "$1" && pwd)"
+    name="$(basename "$abs")"
+    if [[ "$name" == "mod" ]]; then
+        name="$(basename "$(dirname "$abs")")"
+    fi
+    printf '%s' "$name"
+}
+
+MOD1_NAME="$(mod_display_name "$MOD1")"
+MOD2_NAME="$(mod_display_name "$MOD2")"
 
 # ── Temp files ──────────────────────────────────────────────────────────────
 
@@ -78,9 +92,15 @@ COMMON_FILES="$TMPDIR_WORK/common_files.txt"
 # ── Gather relative file lists ─────────────────────────────────────────────
 
 # List all files relative to mod root, normalised with forward slashes, sorted.
+# descriptor.mod and thumbnail.png sit at the root of every mod, so counting
+# them as conflicts would make "no conflicts" unreachable.
 list_files() {
     local base="$1"
-    (cd "$base" && find . -type f | sed 's|^\./||' | sort)
+    (cd "$base" && find . -type f \
+        ! -name 'descriptor.mod' \
+        ! -name 'thumbnail.png' \
+        ! -path './.git/*' \
+        | sed 's|^\./||' | sort)
 }
 
 list_files "$MOD1" > "$FILES1"
@@ -91,18 +111,21 @@ list_files "$MOD2" > "$FILES2"
 comm -12 "$FILES1" "$FILES2" > "$COMMON_FILES"
 FILE_CONFLICT_COUNT=$(wc -l < "$COMMON_FILES" | tr -d ' ')
 
-# ── 2. Key-level conflicts (common/ files) ──────────────────────────────────
+# ── 2. Key-level conflicts (common/ databases) ──────────────────────────────
 #
-# For each shared file under common/, extract top-level keys — lines that
-# match `key_name = {` at column 0 (no leading whitespace).  Report keys
-# that appear in both mods' versions of the same file.
+# CK3 resolves a common/ database per key across the whole folder, so the
+# filename does not matter: mod A's common/decisions/a_decisions.txt and mod
+# B's common/decisions/b.txt collide when both define the same key.  Collect
+# every top-level key of every common/ file from each mod, tagged with its
+# folder, then intersect.  Tagging keeps common/traits/x and
+# common/decisions/x from being reported against each other.
 
-KEYS1="$TMPDIR_WORK/keys1.txt"
-KEYS2="$TMPDIR_WORK/keys2.txt"
+ALL_KEYS1="$TMPDIR_WORK/all_keys1.txt"
+ALL_KEYS2="$TMPDIR_WORK/all_keys2.txt"
 KEY_CONFLICTS="$TMPDIR_WORK/key_conflicts.txt"
+> "$ALL_KEYS1"
+> "$ALL_KEYS2"
 > "$KEY_CONFLICTS"
-
-KEY_CONFLICT_COUNT=0
 
 extract_top_keys() {
     # Matches lines like:  some_key = {  or  some_key={
@@ -112,23 +135,28 @@ extract_top_keys() {
         | sort -u || true
 }
 
-while IFS= read -r relpath; do
-    case "$relpath" in
-        common/*) ;;
-        *) continue ;;
-    esac
+collect_common_keys() {
+    local base="$1" filelist="$2" out="$3" relpath folder
+    while IFS= read -r relpath; do
+        case "$relpath" in
+            common/*) ;;
+            *) continue ;;
+        esac
+        folder="$(dirname "$relpath")"
+        extract_top_keys "$base/$relpath" \
+            | awk -v f="$folder" 'NF { print f "	" $0 }' >> "$out"
+    done < "$filelist"
+}
 
-    extract_top_keys "$MOD1/$relpath" > "$KEYS1"
-    extract_top_keys "$MOD2/$relpath" > "$KEYS2"
+collect_common_keys "$MOD1" "$FILES1" "$ALL_KEYS1"
+collect_common_keys "$MOD2" "$FILES2" "$ALL_KEYS2"
 
-    shared_keys="$(comm -12 "$KEYS1" "$KEYS2")" || true
-    if [[ -n "$shared_keys" ]]; then
-        while IFS= read -r key; do
-            echo "$relpath: $key" >> "$KEY_CONFLICTS"
-            KEY_CONFLICT_COUNT=$((KEY_CONFLICT_COUNT + 1))
-        done <<< "$shared_keys"
-    fi
-done < "$COMMON_FILES"
+sort -u "$ALL_KEYS1" -o "$ALL_KEYS1"
+sort -u "$ALL_KEYS2" -o "$ALL_KEYS2"
+
+comm -12 "$ALL_KEYS1" "$ALL_KEYS2" \
+    | awk -F '	' '{ print $1 ": " $2 }' > "$KEY_CONFLICTS"
+KEY_CONFLICT_COUNT=$(wc -l < "$KEY_CONFLICTS" | tr -d ' ')
 
 # ── 3. Localization conflicts ───────────────────────────────────────────────
 #
@@ -220,27 +248,25 @@ REPLACE_PATH_COUNT=0
 check_replace_path() {
     local mod_dir="$1"
     local mod_name="$2"
-    local descriptor=""
+    local found="$TMPDIR_WORK/replace_paths_one.txt"
+    local f rpath
+    > "$found"
 
-    # Look for descriptor.mod or a *.mod file at the mod root.
-    for f in "$mod_dir/descriptor.mod" "$mod_dir"/*.mod; do
-        if [[ -f "$f" ]]; then
-            descriptor="$f"
-            break
-        fi
+    # Read every .mod at the mod root, not just the first one: descriptor.mod
+    # and a launcher stub beside it can each carry replace_path lines, and
+    # they do not have to agree.  The glob covers descriptor.mod too.
+    for f in "$mod_dir"/*.mod; do
+        [[ -f "$f" ]] || continue
+        grep -E '^[[:space:]]*replace_path[[:space:]]*=' "$f" 2>/dev/null \
+            | sed 's/.*=[[:space:]]*//' \
+            | sed 's/^"//' | sed 's/"$//' >> "$found" || true
     done
 
-    if [[ -z "$descriptor" ]]; then
-        return
-    fi
-
-    grep -E '^[[:space:]]*replace_path[[:space:]]*=' "$descriptor" 2>/dev/null \
-        | sed 's/.*=[[:space:]]*//' \
-        | sed 's/^"//' | sed 's/"$//' \
-        | while IFS= read -r rpath; do
-            echo "[$mod_name] replace_path = \"$rpath\"" >> "$REPLACE_PATHS"
-            # We count inside the subshell, so count after the loop instead.
-        done || true
+    sort -u "$found" | while IFS= read -r rpath; do
+        [[ -n "$rpath" ]] || continue
+        echo "[$mod_name] replace_path = \"$rpath\"" >> "$REPLACE_PATHS"
+        # We count inside the subshell, so count after the loop instead.
+    done
 }
 
 check_replace_path "$MOD1" "$MOD1_NAME"
@@ -282,14 +308,14 @@ echo " 2. Key-Level Conflicts  ($KEY_CONFLICT_COUNT)"
 echo "------------------------------------------------------------"
 if [[ "$KEY_CONFLICT_COUNT" -gt 0 ]]; then
     echo ""
-    echo "Both mods define the same top-level keys in these common/ files:"
+    echo "Both mods define the same top-level key in the same common/ database:"
     echo ""
     while IFS= read -r line; do
         echo "  - $line"
     done < "$KEY_CONFLICTS"
 else
     echo ""
-    echo "  No key-level conflicts in common/ files."
+    echo "  No key-level conflicts in common/ databases."
 fi
 echo ""
 
