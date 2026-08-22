@@ -92,8 +92,8 @@ than writing from scratch, and it is the only reference for the 62 undocumented 
 2. **Verify every effect, trigger and modifier name with `vic3_docs.py find` before writing it.**
    Inventing a plausible identifier is the single most common and most expensive failure.
 3. Encoding: UTF-8 **with BOM** for both script `.txt` and localization `.yml`. Every vanilla
-   file of both kinds ships a BOM (byte-checked on 1.13.10), so match vanilla. CK3 habits are
-   wrong here: CK3 script files carry no BOM.
+   file of both kinds ships a BOM (byte-checked on 1.13.10), so match vanilla. CK3 ships a BOM
+   on script `.txt` too, but tolerates its absence; Victoria 3 does not.
 4. A mod is identified by `.metadata/metadata.json`. Victoria 3 does **not** use CK3's
    `descriptor.mod`.
 5. The on_action folder is `common/on_actions/`, **plural**. CK3's is singular.

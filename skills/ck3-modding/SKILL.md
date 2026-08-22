@@ -122,7 +122,9 @@ last play session will list stale effect/trigger names and mislead you. Confirm 
 3. Never redefine a vanilla on_action's `trigger`/`effect`; append a custom on_action
    (`on_birth_child = { on_actions = { my_mod_on_birth } }`). This is the #1 compatibility bug.
 4. Localization: UTF-8 **with BOM**, filename ends `_l_english.yml`, first line `l_english:`.
-   Script `.txt`: UTF-8. Wrong encoding fails silently.
+   Script `.txt`: UTF-8, BOM optional. Vanilla ships one on script files too (byte-checked on
+   1.19.0.6) and CK3 reads them either way, so writing a BOM matches vanilla and is never
+   wrong. Victoria 3 is stricter and requires it. Wrong encoding fails silently.
 5. Every new key needs localization or the raw key shows in-game.
 6. Folder layout in a mod mirrors the game folder exactly; a folder-name typo = file silently
    ignored. Note it's `common/on_action` (singular).

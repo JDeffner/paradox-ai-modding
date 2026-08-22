@@ -75,7 +75,7 @@ all, and the failure gives no useful message.
 
 UTF-8 **with BOM** for both script `.txt` and localization `.yml`. Every vanilla file of both
 kinds ships a BOM on 1.13.10 (byte-checked: the first three bytes are `EF BB BF`), so match
-vanilla. This differs from CK3, where script `.txt` carries no BOM and only localization does.
+vanilla. CK3 ships a BOM on script `.txt` too, but tolerates its absence; Victoria 3 does not.
 
 Wrong encoding fails silently: the game ignores the file and reports nothing.
 
