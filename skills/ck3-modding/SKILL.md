@@ -4,11 +4,14 @@ description: >-
   Comprehensive Crusader Kings III (CK3) modding assistant covering events, decisions, traits,
   cultures, faiths, character history, landed titles, on_actions, scripted effects/triggers,
   localization, GUI, mod setup, validation, and debugging. Use this skill whenever the user
-  mentions CK3, Crusader Kings, Paradox modding, or any related task — writing or fixing an
-  event, decision, trait, culture, religion, .mod file, error.log problem, on_action, .yml
-  localization, or any file under common/, events/, history/, gui/, or localization/. Also
-  trigger for questions like "why does my mod do nothing", "how do I override X", or "set up a
-  new CK3 mod", even if the word "mod" never appears but the context is clearly CK3 game files.
+  mentions CK3, Crusader Kings, or any related task — writing or fixing an event, decision,
+  trait, culture, religion, .mod file, error.log problem, on_action, .yml localization, or any
+  file under common/, events/, history/, gui/, or localization/. Also trigger for questions
+  like "why does my mod do nothing", "how do I override X", or "set up a new CK3 mod", even if
+  the word "mod" never appears but the context is clearly CK3 game files. For Victoria 3 use
+  the vic3-modding skill instead: descriptor.mod vs .metadata/metadata.json, on_action vs
+  on_actions, and the BOM rules all differ, so CK3 habits produce silently broken Victoria 3
+  mods.
 ---
 
 <!--

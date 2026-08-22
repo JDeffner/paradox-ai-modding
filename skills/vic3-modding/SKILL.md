@@ -11,7 +11,6 @@ description: >-
   Victoria 3 mod" when the context is Victoria 3 game files. For Crusader Kings III use the
   ck3-modding skill instead: the two games differ in descriptor format, folder names, encoding
   rules, and script vocabulary, so CK3 habits produce silently broken Victoria 3 mods.
-allowed-tools: Bash(python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py *)
 ---
 
 # Victoria 3 Modding

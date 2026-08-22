@@ -45,6 +45,9 @@ documentation, because that documentation does contain errors (`buildings.md` do
   than 100 lines.
 - No em dashes. Use commas, parentheses, or periods.
 - LF line endings, enforced by `.gitattributes`.
+- Neither `SKILL.md` declares `allowed-tools`. Both workflows need general file access
+  and a shell (tiger runs, log reading, the docs script), so an enumerated list would be
+  wrong rather than tighter. If one skill ever declares the field, the other does too.
 - Say plainly when something is unverified, rather than hedging it into a claim. An honest
   "vanilla always does this, whether the engine requires it is untested" is more useful than a
   confident guess.
