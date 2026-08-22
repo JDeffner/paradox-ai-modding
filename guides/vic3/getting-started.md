@@ -89,7 +89,7 @@ or Documents lives on a non-default drive.
 
 Tiger tracks Victoria 3 a patch or two behind and admits to some false positives, so treat it as
 a strong signal rather than a verdict. Details in
-[`references/validation.md`](../skills/vic3-modding/references/validation.md).
+[`references/validation.md`](../../skills/vic3-modding/references/validation.md).
 
 ## 5. Set up the mod repo
 

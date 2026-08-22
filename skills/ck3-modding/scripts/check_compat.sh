@@ -123,9 +123,9 @@ FILE_CONFLICT_COUNT=$(wc -l < "$COMMON_FILES" | tr -d ' ')
 ALL_KEYS1="$TMPDIR_WORK/all_keys1.txt"
 ALL_KEYS2="$TMPDIR_WORK/all_keys2.txt"
 KEY_CONFLICTS="$TMPDIR_WORK/key_conflicts.txt"
-> "$ALL_KEYS1"
-> "$ALL_KEYS2"
-> "$KEY_CONFLICTS"
+: > "$ALL_KEYS1"
+: > "$ALL_KEYS2"
+: > "$KEY_CONFLICTS"
 
 extract_top_keys() {
     # Matches lines like:  some_key = {  or  some_key={
@@ -166,7 +166,7 @@ KEY_CONFLICT_COUNT=$(wc -l < "$KEY_CONFLICTS" | tr -d ' ')
 LOC1="$TMPDIR_WORK/loc1.txt"
 LOC2="$TMPDIR_WORK/loc2.txt"
 LOC_CONFLICTS="$TMPDIR_WORK/loc_conflicts.txt"
-> "$LOC_CONFLICTS"
+: > "$LOC_CONFLICTS"
 
 LOC_CONFLICT_COUNT=0
 
@@ -202,8 +202,8 @@ done < "$COMMON_FILES"
 
 ALL_LOC1="$TMPDIR_WORK/all_loc1.txt"
 ALL_LOC2="$TMPDIR_WORK/all_loc2.txt"
-> "$ALL_LOC1"
-> "$ALL_LOC2"
+: > "$ALL_LOC1"
+: > "$ALL_LOC2"
 
 while IFS= read -r relpath; do
     case "$relpath" in
@@ -241,7 +241,7 @@ LOC_CONFLICT_COUNT=$((LOC_CONFLICT_COUNT + CROSS_LOC_COUNT))
 # ── 4. replace_path warnings ───────────────────────────────────────────────
 
 REPLACE_PATHS="$TMPDIR_WORK/replace_paths.txt"
-> "$REPLACE_PATHS"
+: > "$REPLACE_PATHS"
 
 REPLACE_PATH_COUNT=0
 
@@ -250,7 +250,7 @@ check_replace_path() {
     local mod_name="$2"
     local found="$TMPDIR_WORK/replace_paths_one.txt"
     local f rpath
-    > "$found"
+    : > "$found"
 
     # Read every .mod at the mod root, not just the first one: descriptor.mod
     # and a launcher stub beside it can each carry replace_path lines, and

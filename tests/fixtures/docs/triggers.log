@@ -1,0 +1,5 @@
+# Trigger Documentation
+## has_law
+Checks if a country has a law  
+has_law = law_type:law_serfdom
+**Supported Scopes**: country  

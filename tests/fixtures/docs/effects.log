@@ -1,0 +1,10 @@
+# Effect Documentation
+## add_modifier
+Adds a timed modifier effect to object in scope  
+add_modifier = { name = some_modifier days = 30 }
+**Supported Scopes**: country, state  
+
+## activate_law
+Activates a law for a country
+**Supported Scopes**: country  
+**Supported Targets**: law_type  

@@ -1,0 +1,10 @@
+# Event Target Documentation
+### combat_width
+Scope to combat width multiplier of scope province
+Input Scopes: province
+Output Scopes: value
+
+### naval_hq
+Returns the province or state owner local navy HQ
+Input Scopes: province
+Output Scopes: hq

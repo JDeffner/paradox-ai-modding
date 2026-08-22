@@ -32,7 +32,7 @@ downstream: edit the skill here and re-generate, never the generated copy.
 
 ## 2. Give your mod repo a CLAUDE.md
 
-Copy [`templates/CLAUDE.md`](../../templates/ck3/CLAUDE.md) into your mod repo and fill in the
+Copy [`templates/ck3/CLAUDE.md`](../../templates/ck3/CLAUDE.md) into your mod repo and fill in the
 placeholders: your machine's paths (game install, logs folder, mod folder, ck3-tiger
 executable) and your mod's prefix. This is optional (the skill can detect the paths), but
 pinning them saves time at the start of every session and never mis-detects.

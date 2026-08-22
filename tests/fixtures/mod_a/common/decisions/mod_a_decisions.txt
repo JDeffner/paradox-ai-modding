@@ -1,0 +1,7 @@
+my_decision = {
+	picture = "gfx/a.dds"
+}
+
+a_only_decision = {
+	picture = "gfx/a2.dds"
+}

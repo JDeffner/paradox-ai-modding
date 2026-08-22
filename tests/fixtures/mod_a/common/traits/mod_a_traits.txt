@@ -1,0 +1,3 @@
+shared_name = {
+	index = 900
+}

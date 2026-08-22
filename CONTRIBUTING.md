@@ -53,6 +53,19 @@ documentation, because that documentation does contain errors (`buildings.md` do
   confident guess.
 - CK3 mod pattern notes follow the discipline described in `skills/ck3-modding/mods/README.md`.
 
+## Checks
+
+CI runs three jobs on every pull request, all offline and in seconds. Run them locally first:
+
+```bash
+python -m unittest discover -s tests -v   # vic3_docs.py parsers and path resolution
+bash tests/test_check_compat.sh           # check_compat.sh against two fixture mods
+python tests/check_links.py               # every relative markdown link resolves
+```
+
+A parser change needs a fixture in `tests/fixtures/docs/`, taken from a real dump. See
+[tests/README.md](tests/README.md).
+
 ## What is especially welcome
 
 - Corrections with file-path evidence, above all after a game patch changes behavior.
