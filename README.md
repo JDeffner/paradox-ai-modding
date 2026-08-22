@@ -41,6 +41,11 @@ Copy (or symlink) the skill for your game where Claude Code looks for skills:
 - for all your projects: `skills/<game>-modding/` into `~/.claude/skills/`
 - for one mod repo: `skills/<game>-modding/` into `<mod repo>/.claude/skills/`
 
+This repo is the source of truth for both skills. A tool that generates a personalized copy
+with your machine's paths already filled in (the Paradox Toolkit below does this) produces a
+downstream copy: send corrections here rather than editing the generated copy, which the next
+generation overwrites.
+
 Skills are read at startup, so restart Claude Code afterwards. Then open a session in your mod
 folder and ask for something ("add a decision that ...", "add a production method that ...").
 

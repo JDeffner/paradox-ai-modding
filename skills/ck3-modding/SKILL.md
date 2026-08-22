@@ -15,11 +15,15 @@ description: >-
 ---
 
 <!--
-Maintained in the paradox-ai-modding repo. This skill is fully portable: the
+Source of truth for this skill: the paradox-ai-modding repo. Corrections go there.
+The file is fully portable, so there is no build step here: the
 <game>/<logs>/<mods>/<workshop>/<tiger> placeholders are resolved at the start of a
-session via the Step 0 table below (no build step needed). If you keep copies with your
-machine's paths baked in, treat this file as the source of truth and re-copy rather than
-hand-editing the copy.
+session via the Step 0 table below.
+
+A tool that generates a personalized copy with those placeholders already substituted
+(the Paradox Toolkit VS Code extension does this) produces a downstream copy of this
+file. Never hand-edit a generated copy: the next generation overwrites it. Edit here and
+re-generate, or re-copy.
 -->
 
 # CK3 Modding

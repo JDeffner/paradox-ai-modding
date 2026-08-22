@@ -26,6 +26,10 @@ git clone https://github.com/JDeffner/paradox-ai-modding.git
 
 A symlink to your clone works too and picks up updates on `git pull`.
 
+This repo is the source of truth for the skill. If you use a tool that generates a copy
+with your paths already substituted (the CK3 Modding Toolkit does this), that copy is
+downstream: edit the skill here and re-generate, never the generated copy.
+
 ## 2. Give your mod repo a CLAUDE.md
 
 Copy [`templates/CLAUDE.md`](../../templates/ck3/CLAUDE.md) into your mod repo and fill in the
