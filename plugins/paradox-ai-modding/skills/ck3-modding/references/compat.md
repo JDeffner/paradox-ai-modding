@@ -26,19 +26,22 @@ folder, for the objects you're overriding.)
 - Unique filenames with the mod's name in them; never reuse a vanilla filename unless a
   full-file override is intended.
 - Prefix every new key, event namespace, and loc key with the mod name.
-- Never redefine a vanilla on_action's `trigger`/`effect` (golden rule 3 in SKILL.md).
+- Never redefine a vanilla on_action's `trigger`/`effect`; append a custom on_action instead.
 - Avoid `replace_path` unless building a total conversion.
 
 ## Detection
 
-1. `scripts/check_compat.sh /path/to/mod_a /path/to/mod_b` — reports same-path files,
-   shared top-level keys in `common/`, duplicate loc keys (same-file and cross-file), and
-   `replace_path` directives. Exit 0 = clean, 1 = conflicts. Runs in Git Bash.
+1. `scripts/check_compat.sh /path/to/mod_a /path/to/mod_b` — reports same-path files
+   (`descriptor.mod` and `thumbnail.png` excluded, every mod has those), top-level keys
+   defined by both mods in the same `common/` database folder whatever the filenames are,
+   duplicate loc keys within the same language (same-file and cross-file), and `replace_path`
+   directives from every `.mod` at the mod root. Nested database folders, BOMs, indentation,
+   comments and quoted braces are handled. Exit 0 = no issues detected, 1 = potential conflicts
+   or warnings, 2 = invalid input. Runs in Git Bash. It is a lightweight scanner, not a full
+   Jomini parser or load-order simulation; intentional overrides and mergeable on_actions
+   still need review. Descriptors outside the supplied roots are not scanned.
 2. `database_conflicts.log` (written at every launch) — ground truth for which file actually
    won each contested override in the running playset.
-3. For key collisions across *differently named* files (which the script's same-path check
-   misses), grep both mods for the same top-level keys:
-   `grep -rhoE '^[a-z_0-9]+ =' modA/common/<folder> modB/common/<folder> | sort | uniq -d`.
 
 ## Resolution
 

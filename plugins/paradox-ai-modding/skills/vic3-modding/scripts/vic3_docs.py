@@ -18,13 +18,15 @@ Subcommands:
     folders [name]  Map common/ folders to their schema doc and file counts.
     stats           Entry counts and how stale the dumps are.
 
-Paths are auto-detected. Override with --game / --docs, or the VIC3_GAME and
-VIC3_DOCS environment variables.
+Paths are auto-detected from Steam's own library list and the Documents
+folder. Override with --game / --docs, or the VIC3_GAME and VIC3_DOCS
+environment variables.
 
 Regenerate the dumps after a game patch: launch with -debug_mode, then run
 `script_docs` and `dump_data_types` in the in-game console.
 """
 import argparse
+import difflib
 import os
 import re
 import sys
@@ -45,25 +47,94 @@ SOURCES = {
 # non-breaking spaces, which corrupt the text unless stripped.
 ICON_TOKEN = re.compile("\x16[^!]*!")
 
-DOCS_CANDIDATES = [
-    "~/Documents/Paradox Interactive/Victoria 3/docs",
-    "D:/Documents/Paradox Interactive/Victoria 3/docs",
-    "~/.local/share/Paradox Interactive/Victoria 3/docs",
+# Steam roots to try when the registry says nothing: its default install and
+# the usual Linux and macOS locations. Each one is then read for its
+# libraryfolders.vdf, so a game on any drive or any extra library is found.
+STEAM_ROOTS = [
+    "C:/Program Files (x86)/Steam",
+    "~/.steam/steam",
+    "~/.local/share/Steam",
+    "~/Library/Application Support/Steam",
 ]
-GAME_CANDIDATES = [
-    "C:/Program Files (x86)/Steam/steamapps/common/Victoria 3/game",
-    "D:/SteamLibrary/steamapps/common/Victoria 3/game",
-    "F:/SteamLibrary/steamapps/common/Victoria 3/game",
-    "~/.local/share/Steam/steamapps/common/Victoria 3/game",
-]
+GAME_SUFFIX = "steamapps/common/Victoria 3/game"
+DOCS_SUFFIX = "Paradox Interactive/Victoria 3/docs"
+
+
+def registry_value(hive, key, name):
+    """One registry string, or None off Windows and when the key is absent."""
+    try:
+        import winreg
+    except ImportError:
+        return None
+    try:
+        with winreg.OpenKey(getattr(winreg, hive), key) as handle:
+            return winreg.QueryValueEx(handle, name)[0]
+    except OSError:
+        return None
+
+
+def steam_libraries():
+    """Every Steam library folder: registry install path, then libraryfolders.vdf."""
+    roots = []
+    for hive, key, name in [
+        ("HKEY_CURRENT_USER", r"Software\Valve\Steam", "SteamPath"),
+        ("HKEY_LOCAL_MACHINE", r"SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath"),
+    ]:
+        found = registry_value(hive, key, name)
+        if found:
+            roots.append(Path(found))
+    roots += [Path(r).expanduser() for r in STEAM_ROOTS]
+
+    libraries = []
+    for root in roots:
+        vdf = root / "steamapps" / "libraryfolders.vdf"
+        paths = [root]
+        if vdf.is_file():
+            text = vdf.read_text(encoding="utf-8", errors="replace")
+            paths += [Path(m.replace('\\\\', '\\'))
+                      for m in re.findall(r'"path"\s+"([^"]+)"', text)]
+        for p in paths:
+            if p.is_dir() and p not in libraries:
+                libraries.append(p)
+    return libraries
+
+
+def game_candidates():
+    return [lib / GAME_SUFFIX for lib in steam_libraries()]
+
+
+def docs_candidates():
+    """Documents/Paradox Interactive/..., following a redirected Documents folder."""
+    out = []
+    personal = registry_value(
+        "HKEY_CURRENT_USER",
+        r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+        "Personal")
+    if personal:
+        out.append(Path(os.path.expandvars(personal)) / DOCS_SUFFIX)
+    out.append(Path("~/Documents").expanduser() / DOCS_SUFFIX)
+    out.append(Path("~/.local/share").expanduser() / DOCS_SUFFIX)
+    return out
 
 
 def resolve(explicit, env_var, candidates, marker):
-    for cand in [explicit, os.environ.get(env_var), *candidates]:
+    # An explicit path that does not hold the marker is a mistake, not a hint:
+    # falling through to auto-detection would answer from a build the user did
+    # not ask about.
+    def valid(p):
+        return (p / marker).is_dir() if marker == "common" else (p / marker).is_file()
+
+    selected = explicit if explicit is not None else os.environ.get(env_var)
+    if selected is not None:
+        p = Path(selected).expanduser()
+        if not selected or not valid(p):
+            sys.exit(f"{p} does not look right: no valid {marker} inside it")
+        return p
+    for cand in candidates:
         if not cand:
             continue
         p = Path(cand).expanduser()
-        if (p / marker).exists():
+        if valid(p):
             return p
     return None
 
@@ -172,11 +243,14 @@ def cmd_find(args, docs):
                       "    content is present, or this silently does nothing.")
         return 0
 
-    print(f"NOT FOUND: {args.name!r} is not an effect, trigger, modifier, event "
-          f"target, on_action, or custom localization key in this build.\n"
-          f"Do not use it. Pick a real one from the suggestions below or search "
-          f"with: vic3_docs.py find -s <text>")
-    near = sorted(n for n in index if args.name.lower() in n.lower())[:10]
+    # Close matches, not a substring search: the string the user typed is the
+    # one that is wrong, so a substring of it usually matches nothing.
+    near = difflib.get_close_matches(args.name, list(index), n=10, cutoff=0.7)
+    tail = ("Pick a real one from the suggestions below, or search "
+            if near else "Search ")
+    print(f"NOT FOUND: {args.name!r} is absent from the available documentation dumps.\n"
+          f"Verify missing or stale dumps before concluding it does not exist.\n"
+          f"{tail}with: vic3_docs.py find -s <text>")
     for n in near:
         print(f"  {n}")
     return 1
@@ -192,7 +266,7 @@ def cmd_folders(args, game):
     for folder, (docs, n_txt) in rows.items():
         if docs:
             documented += 1
-            names = ", ".join(f"common/{folder}/{d.name}" for d in docs)
+            names = ", ".join(d.relative_to(game).as_posix() for d in docs)
             print(f"{folder:42} {n_txt:5} .txt   doc: {names}")
         else:
             print(f"{folder:42} {n_txt:5} .txt   doc: none, read the vanilla files")
@@ -254,8 +328,8 @@ def main():
     sub.add_parser("stats", help="entry counts, build version, dump freshness")
 
     args = ap.parse_args()
-    game = resolve(args.game, "VIC3_GAME", GAME_CANDIDATES, "common")
-    docs = resolve(args.docs, "VIC3_DOCS", DOCS_CANDIDATES, "effects.log")
+    game = resolve(args.game, "VIC3_GAME", game_candidates(), "common")
+    docs = resolve(args.docs, "VIC3_DOCS", docs_candidates(), "effects.log")
 
     if args.cmd == "stats":
         return cmd_stats(args, game, docs)

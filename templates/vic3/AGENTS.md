@@ -1,7 +1,7 @@
 <!--
 Drop-in agent-memory template for a Victoria 3 mod repo. Copy to <your mod repo>/AGENTS.md
-and fill in everything marked <like this>. Claude Code, Codex, Cursor, Aider and others read
-AGENTS.md; Claude Code also accepts the same content as CLAUDE.md.
+and fill in everything marked <like this>. Codex loads AGENTS.md. For Claude Code, copy the
+adjacent CLAUDE.md adapter too; it imports these instructions with @AGENTS.md.
 
 Keep this file to facts about THIS mod. Procedure lives in the vic3-modding skill, which the
 agent loads on demand. Duplicating the skill here just burns context on every request.

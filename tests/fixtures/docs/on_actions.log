@@ -1,0 +1,13 @@
+On Action Documentation:
+
+--------------------
+
+on_law_enactment_fail:
+From Code: Yes
+Expected Scope: none
+
+--------------------
+
+elections_monthly_events:
+From Code: No
+Expected Scope: country

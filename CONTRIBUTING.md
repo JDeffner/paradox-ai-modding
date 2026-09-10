@@ -5,6 +5,10 @@ hearsay.
 
 The maintained skills live in `plugins/paradox-ai-modding/skills/`. Keep game-specific guidance with its game. CK3 GUI and playtesting have separate workflows; events, decisions, traits, and other systems remain references. Add a skill only when it has a distinct trigger, procedure, and result.
 
+For another game, follow the [Adding a Game guide](https://github.com/JDeffner/paradox-ai-modding/wiki/Adding-a-Game).
+Human setup and maintenance guides live in the [wiki](https://github.com/JDeffner/paradox-ai-modding/wiki);
+agent-facing references stay packaged with the skills. Report vulnerabilities using [SECURITY.md](SECURITY.md).
+
 ## Verification discipline
 
 - Every technical claim must be verified against actual files: the vanilla install, the mod
@@ -48,10 +52,26 @@ Follow [maintenance.md](guides/maintenance.md) for client validation, source own
   than 100 lines.
 - No em dashes. Use commas, parentheses, or periods.
 - LF line endings, enforced by `.gitattributes`.
+- The bundled skills omit `allowed-tools`: they need file access and a shell, with runtime
+  tools supplied by the client and project. Any future restriction should match that skill's
+  actual workflow; there is no requirement to mirror tool lists across unrelated skills.
 - Say plainly when something is unverified, rather than hedging it into a claim. An honest
   "vanilla always does this, whether the engine requires it is untested" is more useful than a
   confident guess.
 - CK3 mod pattern notes follow the discipline described in `plugins/paradox-ai-modding/skills/ck3-modding/mods/README.md`.
+
+## Checks
+
+CI runs three jobs on every pull request, all offline and in seconds. Run them locally first:
+
+```bash
+python -m unittest discover -s tests -v   # vic3_docs.py parsers and path resolution
+bash tests/test_check_compat.sh           # check_compat.sh against two fixture mods
+python tests/check_links.py               # every relative markdown link resolves
+```
+
+A parser change needs a fixture in `tests/fixtures/docs/`, taken from a real dump. See
+[tests/README.md](tests/README.md).
 
 ## What is especially welcome
 

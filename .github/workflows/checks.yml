@@ -1,0 +1,44 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: compile
+        run: python -m py_compile plugins/paradox-ai-modding/skills/vic3-modding/scripts/vic3_docs.py
+      - name: parser and resolver tests
+        run: python -m unittest discover -s tests -v
+
+  shell:
+    name: check_compat.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck plugins/paradox-ai-modding/skills/ck3-modding/scripts/check_compat.sh tests/test_check_compat.sh
+      - name: fixture mods
+        run: bash tests/test_check_compat.sh
+
+  links:
+    name: markdown links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: relative links resolve
+        run: python tests/check_links.py

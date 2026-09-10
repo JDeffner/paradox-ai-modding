@@ -1,0 +1,7 @@
+my_decision = {
+	picture = "gfx/b.dds"
+}
+
+shared_name = {
+	picture = "gfx/b2.dds"
+}

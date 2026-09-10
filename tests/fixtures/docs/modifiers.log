@@ -1,0 +1,12 @@
+--- Static modifier types ---
+battle_casualties_mult:
+  Mask: battle
+  Name: Casualties Taken
+  Description: A bonus or penalty to the number of casualties this side takes
+country_authority_add:
+  Mask: country
+  Name: Vauthority_icon! Authority
+--- Potential dynamic modifier types ---
+building_group_bg_agriculture_throughput_add:
+  Mask: country
+  Name: Agriculture Throughput
