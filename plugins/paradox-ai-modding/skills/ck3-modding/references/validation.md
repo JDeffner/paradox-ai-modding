@@ -1,0 +1,123 @@
+# Validating mod code with ck3-tiger
+
+ck3-tiger (github.com/amtep/tiger) is the standard CK3 lint/validator. It loads vanilla plus the
+mod and checks cross-references, scopes, syntax, loc, and idioms. Run it after writing code,
+BEFORE telling the user to test in-game. After a game update, check validator support and investigate version-mismatch diagnostics before treating them as mod errors.
+
+**Install:** grab the release matching the game version from github.com/amtep/tiger (Windows and
+Linux builds; each ships `ck3-tiger`, the zero-config `ck3-tiger-auto`, a sample `ck3-tiger.conf`,
+and docs `filter.md`/`annotations.md`). `<tiger>` below = the full path to the ck3-tiger
+executable on this machine (environment.md); its sibling files (`ck3-tiger-auto`, `ck3-tiger.conf`,
+`filter.md`) live in the same folder. A Linux build for headless sandbox runs, if installed, sits
+next to the Windows install folder as a `ck3-tiger-linux-<version>` sibling — list the parent
+folder of `<tiger>` to find it. The CK3 Modding Toolkit VS Code extension (`JDeffner.ck3-modding-toolkit`) can also download it for you
+(command "CK3 Tiger: Download or Update Binary").
+
+The `.exe` cannot run in a Linux sandbox and the Linux binary cannot run on Windows; pick the one
+that matches the shell the agent actually has. Read `filter.md`/`annotations.md` in the install
+folder for anything not covered here. See "Autonomous validation" below for how an agent runs
+tiger itself.
+
+## Invocation
+
+```
+ck3-tiger [OPTIONS] <MODPATH>
+```
+
+`<MODPATH>` = the mod's `.mod` descriptor file (recommended; its `path=` locates the files) or the
+mod folder. Standard Windows command:
+
+```powershell
+& "<tiger>" --no-color "<mods>\YourMod.mod" > tiger_report.txt
+```
+
+Real flags (do NOT invent others; there are no severity/level CLI flags):
+`--game <dir>` (only if auto-detect fails; pass the `<game>` folder),
+`--paradox <dir>`, `--config <file>`, `--show-vanilla` (very noisy, avoid), `--show-mods`,
+`--json` (machine-readable output, prefer for parsing), `-c/--consolidate` (collapse repeats),
+`--unused`, `--pod` (Princes-of-Darkness-specific checks, use for PoD submods), `--no-color`,
+`--suppress <baseline.json>` (hide a saved set of reports; great for "only show NEW issues"),
+`-V/--version`.
+
+Tiger auto-detects the CK3 install and Paradox user directory; the path flags are fallbacks.
+
+## Run with the available shell
+
+Use the installed executable for the agent's actual operating system. Run it directly through an available authorized shell, with the project's configuration and descriptor path. Keep reports outside the shipping mod folder and read them yourself.
+
+Respect the execution permissions of the current tools. If execution is unavailable, complete source inspection and give the user the exact validator command. Read the resulting report from disk when available.
+
+## Config: ship a `ck3-tiger.conf` in the mod root
+
+Named exactly `ck3-tiger.conf`, placed in the mod's top directory (next to `common/`, `events/`),
+Paradox-script format. Recommended default (localization checks OFF, since the goal is
+usually working code; re-enable when asked or when polishing for release):
+
+```
+# ck3-tiger.conf
+languages = {
+    check = "english"          # skip "missing loc" spam for other languages
+}
+
+filter = {
+    show_vanilla = no
+    show_loaded_mods = no
+
+    trigger = {
+        # implicit AND: a report prints only if it matches every line
+        severity >= Warning        # hide Tips and Untidy
+        confidence >= Reasonable   # hide the false-positive-prone Weak reports
+        NOT = { key = missing-localization }   # loc checks OFF by default
+    }
+}
+```
+
+To re-enable loc checks: delete the `NOT = { key = missing-localization }` line.
+
+Vocabulary (exact spellings): severity `Tips < Untidy < Warning < Error < Fatal`; confidence
+`Weak < Reasonable < Strong`; both support comparisons (`severity >= Warning`). The `key` is the
+token printed in parentheses on each report's first line (e.g. `Error(missing-localization):`).
+Only filter on keys you have actually seen in output; documented ones include
+`missing-localization`, `missing-item`, `duplicate-item`, `duplicate-field`.
+
+Other useful config blocks: per-file suppression
+`trigger = { ignore_keys_in_files = { keys = { missing-localization } files = { localization/ } } }`;
+`scope_override = { my_trigger = ALL }` to fix false wrong-scope reports;
+`characters = { only_born = "1511.1.1" }` for history noise;
+`load_mod = { label = "AGOT" workshop_id = "2962333032" }` blocks to declare parent mods a submod
+depends on (parents load first so references resolve; their own problems stay hidden by default).
+
+In-file alternative: `#tiger-ignore` comment on the line above, or scoped forms
+`#tiger-ignore(block)`, `#tiger-ignore(file)`, `#tiger-ignore(begin)`/`(end)`,
+`#tiger-ignore(key=missing-item)`. Works in script, gui, and loc files.
+
+## Output and triage
+
+Human format: `Severity(key): message`, then `--> [MOD] path/file.txt`, then the offending line
+with a caret. A summary count prints at the end; a clean run says so explicitly. `--json` emits
+the same reports as JSON (inspect the actual field names once before depending on them).
+
+Agent triage order:
+
+1. `Fatal` / `Error`: real bugs, fix first (Fatal = likely crash or fully broken item).
+2. `Warning`: player-facing glitches; fix or consciously suppress.
+3. `Untidy` / `Tips`: style/perf advice; ignore while iterating.
+
+Cross-check `confidence`: `Weak` reports are the false-positive-prone ones.
+
+## Facts an agent must know
+
+- **Whole-mod only.** Tiger cannot meaningfully validate a single file; references resolve across
+  game + mod. To focus output on one area, filter instead:
+  `trigger = { file = common/traits/ }` restricts *printing*, not parsing.
+- Runs take seconds to low tens of seconds (it parses all of vanilla each run; no watch mode).
+- **Do not rely on exit codes** (undocumented); parse the output and count Error/Fatal, or diff
+  against a `--suppress` baseline.
+- Tiger is mature but "will still warn about some things that are actually correct" (its own
+  README). Manage false positives via confidence filters, `scope_override`, `#tiger-ignore`, and
+  baselines, not by ignoring the tool.
+- A run drowning in loc Warnings is not "broken code": fix Error/Fatal first, defer loc until the
+  content is stable, then re-enable the loc key and clean up.
+- Run `--version` once per session to confirm the build matches the installed CK3 patch (both local
+  builds are v1.19.0 = CK3 1.19; re-download the matching release from
+  github.com/amtep/tiger/releases after a CK3 update).

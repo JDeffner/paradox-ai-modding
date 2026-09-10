@@ -5,17 +5,23 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   python:
-    name: vic3_docs.py
-    runs-on: ubuntu-latest
+    name: Python (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: compile
-        run: python -m py_compile skills/vic3-modding/scripts/vic3_docs.py
+        run: python -m py_compile plugins/paradox-ai-modding/skills/vic3-modding/scripts/vic3_docs.py
       - name: parser and resolver tests
         run: python -m unittest discover -s tests -v
 
@@ -25,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: shellcheck
-        run: shellcheck skills/ck3-modding/scripts/check_compat.sh tests/test_check_compat.sh
+        run: shellcheck plugins/paradox-ai-modding/skills/ck3-modding/scripts/check_compat.sh tests/test_check_compat.sh
       - name: fixture mods
         run: bash tests/test_check_compat.sh
 

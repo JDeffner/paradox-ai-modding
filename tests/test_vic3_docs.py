@@ -5,11 +5,14 @@ one per grammar, including the icon control byte that modifiers.log embeds.
 """
 import subprocess
 import sys
+import os
+import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SCRIPT = REPO / "skills" / "vic3-modding" / "scripts" / "vic3_docs.py"
+SCRIPT = REPO / "plugins" / "paradox-ai-modding" / "skills" / "vic3-modding" / "scripts" / "vic3_docs.py"
 DOCS = Path(__file__).resolve().parent / "fixtures" / "docs"
 
 sys.path.insert(0, str(SCRIPT.parent))
@@ -69,6 +72,44 @@ class TestResolve(unittest.TestCase):
         self.assertEqual(
             vic3_docs.resolve(str(DOCS), "VIC3_DOCS_UNSET", [], "effects.log"), DOCS)
 
+    def test_invalid_environment_override_does_not_select_another_build(self):
+        with patch.dict(os.environ, {"VIC3_DOCS_TEST": str(REPO)}):
+            with self.assertRaises(SystemExit):
+                vic3_docs.resolve(None, "VIC3_DOCS_TEST", [DOCS], "effects.log")
+
+    def test_explicit_overrides_environment(self):
+        with patch.dict(os.environ, {"VIC3_DOCS_TEST": str(REPO)}):
+            self.assertEqual(vic3_docs.resolve(str(DOCS), "VIC3_DOCS_TEST", [], "effects.log"), DOCS)
+
+    def test_wrong_marker_type_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "effects.log").mkdir()
+            (root / "common").touch()
+            for marker in ("effects.log", "common"):
+                with self.subTest(marker=marker), self.assertRaises(SystemExit):
+                    vic3_docs.resolve(tmp, "VIC3_TEST_UNSET", [], marker)
+
+
+class TestDetection(unittest.TestCase):
+    def test_registry_steam_root_and_extra_library(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "Steam"
+            extra = Path(tmp) / "Library with spaces"
+            (root / "steamapps").mkdir(parents=True)
+            extra.mkdir()
+            escaped = str(extra).replace('\\', '\\\\')
+            (root / "steamapps/libraryfolders.vdf").write_text(
+                '"libraryfolders" { "1" { "path" "' + escaped + '" } }', encoding="utf-8")
+            with patch.object(vic3_docs, "registry_value", return_value=str(root)), \
+                    patch.object(vic3_docs, "STEAM_ROOTS", []):
+                self.assertEqual(vic3_docs.steam_libraries(), [root, extra])
+
+    def test_redirected_documents_is_first_candidate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(vic3_docs, "registry_value", return_value=tmp):
+                self.assertEqual(vic3_docs.docs_candidates()[0], Path(tmp) / vic3_docs.DOCS_SUFFIX)
+
 
 class TestFindCommand(unittest.TestCase):
     def run_find(self, *args):
@@ -92,6 +133,18 @@ class TestFindCommand(unittest.TestCase):
         done = self.run_find("zzz_not_a_real_identifier")
         self.assertEqual(done.returncode, 1)
         self.assertNotIn("suggestions below", done.stdout)
+
+    def test_nested_schema_path_is_printed_as_an_existing_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            game = Path(tmp)
+            schema = game / "common/technology/eras/eras.md"
+            schema.parent.mkdir(parents=True)
+            schema.write_text("# Schema fixture", encoding="utf-8")
+            done = subprocess.run(
+                [sys.executable, str(SCRIPT), "--game", tmp, "folders", "technology"],
+                capture_output=True, text=True)
+            self.assertEqual(done.returncode, 0)
+            self.assertIn("common/technology/eras/eras.md", done.stdout)
 
 
 if __name__ == "__main__":

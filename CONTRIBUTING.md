@@ -3,8 +3,11 @@
 Corrections and additions are welcome. One bar keeps this repo useful: nothing lands on
 hearsay.
 
-This repo holds one skill per game. Say which game a change targets, and keep changes inside
-that game's `skills/<game>-modding/` tree unless you are deliberately changing both.
+The maintained skills live in `plugins/paradox-ai-modding/skills/`. Keep game-specific guidance with its game. CK3 GUI and playtesting have separate workflows; events, decisions, traits, and other systems remain references. Add a skill only when it has a distinct trigger, procedure, and result.
+
+For another game, follow the [Adding a Game guide](https://github.com/JDeffner/paradox-ai-modding/wiki/Adding-a-Game).
+Human setup and maintenance guides live in the [wiki](https://github.com/JDeffner/paradox-ai-modding/wiki);
+agent-facing references stay packaged with the skills. Report vulnerabilities using [SECURITY.md](SECURITY.md).
 
 ## Verification discipline
 
@@ -33,9 +36,13 @@ documentation, because that documentation does contain errors (`buildings.md` do
   something exists, that is a lookup, not a paragraph.
 - **Paraphrased schema.** Where a game ships a schema doc for a folder, point at it rather than
   restating it. Restating it creates a second copy that silently goes stale.
-- **Machine-specific paths.** Use the placeholders defined in each `SKILL.md` Step 0.
+- **Machine-specific paths.** Use the placeholders defined in the game skill or its environment reference.
 - **Personal or project-specific content.** "Application:" sketches in pattern notes stay
   project-neutral.
+
+## Package and workflow checks
+
+Follow [maintenance.md](guides/maintenance.md) for client validation, source ownership, and updates. Keep the two plugin manifests aligned. Mark source checks and runtime checks separately; the imported recipes are not certified by packaging them.
 
 ## Style
 
@@ -45,13 +52,13 @@ documentation, because that documentation does contain errors (`buildings.md` do
   than 100 lines.
 - No em dashes. Use commas, parentheses, or periods.
 - LF line endings, enforced by `.gitattributes`.
-- Neither `SKILL.md` declares `allowed-tools`. Both workflows need general file access
-  and a shell (tiger runs, log reading, the docs script), so an enumerated list would be
-  wrong rather than tighter. If one skill ever declares the field, the other does too.
+- The bundled skills omit `allowed-tools`: they need file access and a shell, with runtime
+  tools supplied by the client and project. Any future restriction should match that skill's
+  actual workflow; there is no requirement to mirror tool lists across unrelated skills.
 - Say plainly when something is unverified, rather than hedging it into a claim. An honest
   "vanilla always does this, whether the engine requires it is untested" is more useful than a
   confident guess.
-- CK3 mod pattern notes follow the discipline described in `skills/ck3-modding/mods/README.md`.
+- CK3 mod pattern notes follow the discipline described in `plugins/paradox-ai-modding/skills/ck3-modding/mods/README.md`.
 
 ## Checks
 
