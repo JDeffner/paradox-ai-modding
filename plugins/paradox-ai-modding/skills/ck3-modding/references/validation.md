@@ -2,13 +2,12 @@
 
 ck3-tiger (github.com/amtep/tiger) is the standard CK3 lint/validator. It loads vanilla plus the
 mod and checks cross-references, scopes, syntax, loc, and idioms. Run it after writing code,
-BEFORE telling the user to test in-game. It tracks each CK3 patch within days/weeks; right after
-a game update expect transient false positives (it warns at startup on a version mismatch).
+BEFORE telling the user to test in-game. After a game update, check validator support and investigate version-mismatch diagnostics before treating them as mod errors.
 
 **Install:** grab the release matching the game version from github.com/amtep/tiger (Windows and
 Linux builds; each ships `ck3-tiger`, the zero-config `ck3-tiger-auto`, a sample `ck3-tiger.conf`,
 and docs `filter.md`/`annotations.md`). `<tiger>` below = the full path to the ck3-tiger
-executable on this machine (SKILL.md Step 0); its sibling files (`ck3-tiger-auto`, `ck3-tiger.conf`,
+executable on this machine (environment.md); its sibling files (`ck3-tiger-auto`, `ck3-tiger.conf`,
 `filter.md`) live in the same folder. A Linux build for headless sandbox runs, if installed, sits
 next to the Windows install folder as a `ck3-tiger-linux-<version>` sibling — list the parent
 folder of `<tiger>` to find it. The CK3 Modding Toolkit VS Code extension (`JDeffner.ck3-modding-toolkit`) can also download it for you
@@ -42,50 +41,11 @@ Real flags (do NOT invent others; there are no severity/level CLI flags):
 
 Tiger auto-detects the CK3 install and Paradox user directory; the path flags are fallbacks.
 
-## Autonomous validation (agent runs tiger itself, then reviews the output)
+## Run with the available shell
 
-Prefer whichever route matches the agent's actual shell. Both produce a report the agent reads and
-triages without the user.
+Use the installed executable for the agent's actual operating system. Run it directly through an available authorized shell, with the project's configuration and descriptor path. Keep reports outside the shipping mod folder and read them yourself.
 
-### Route A: Linux sandbox + Linux binary (fully headless, preferred)
-
-The sandbox mounts the Windows drives, so it can reach both the game files and the Linux tiger
-binary. Because a binary on an NTFS mount may lack the exec bit, copy it into the sandbox, mark it
-executable, and run it pointing `--game` at the mounted game dir:
-
-```bash
-# paths below use each connected folder's sandbox mount (…/mnt/<folder>); the mount prefix
-# (/sessions/<id>/mnt) changes per session — resolve it from the folder-connection message.
-BIN="/sessions/<id>/mnt/<tiger-linux-folder>"   # the ck3-tiger-linux-<version> folder (see Install above)
-GAME="/sessions/<id>/mnt/<...>/steamapps/common/Crusader Kings III/game"
-MOD="/sessions/<id>/mnt/<your-mod-folder>"          # the mod being validated (must be mounted)
-
-cp "$BIN/ck3-tiger" /tmp/ck3-tiger && chmod +x /tmp/ck3-tiger
-/tmp/ck3-tiger --no-color --game "$GAME" "$MOD/descriptor.mod" > /tmp/tiger_report.txt 2>&1
-```
-
-Then Read `/tmp/tiger_report.txt` (or write it into the mounted outputs folder) and triage.
-Requirements: the sandbox must actually start (it fails when the host disk is low on space), the
-mod folder being validated must be a connected folder, and network is not needed (the binary is
-already local). Drop a `ck3-tiger.conf` (below) in the mod root, or pass
-`--config "$BIN/ck3-tiger.conf"` after editing it.
-
-### Route B: Windows, via a batch file (uses the local .exe, no terminal typing)
-
-Computer-use grants terminals "click-only" (typing blocked), but Explorer is full-access and a
-double-click runs a `.bat`. So: write a batch file into a connected folder, launch it by
-double-clicking in Explorer via computer-use (or ask the user to double-click it), then Read the
-report file it writes.
-
-```bat
-@echo off
-"<tiger>" --no-color "<mods>\YourMod.mod" > "%~dp0tiger_report.txt" 2>&1
-```
-
-`ck3-tiger-auto.exe` is the zero-config variant (auto-detects everything) if you don't need flags.
-
-Only fall back to "here's the command, please run it and send the report back" if neither route is
-available.
+Respect the execution permissions of the current tools. If execution is unavailable, complete source inspection and give the user the exact validator command. Read the resulting report from disk when available.
 
 ## Config: ship a `ck3-tiger.conf` in the mod root
 

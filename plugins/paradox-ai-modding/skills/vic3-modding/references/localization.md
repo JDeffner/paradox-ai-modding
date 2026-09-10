@@ -105,7 +105,7 @@ character_role_magnate_custom_loc = {
 The 202 defined custom localization keys, each with its scope and entry list, are in the dumps:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find -s custom_loc
+python "<skill>/scripts/vic3_docs.py" find -s custom_loc
 ```
 
 ## Trigger and effect localization

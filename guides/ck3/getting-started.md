@@ -1,88 +1,34 @@
-# Getting started: an AI agent for CK3 modding
+# Getting started with CK3 modding
 
-End-to-end setup for modding CK3 with an agent. Claude Code is used as the running example;
-the last section covers other agents.
+Install the plugin or the three CK3 skills using the [README](../../README.md#install-from-a-local-checkout). Use one installation method in each client.
 
-## What you need
+## Configure the project
 
-- Crusader Kings III installed (Steam).
-- [Claude Code](https://claude.com/claude-code) (CLI, desktop app, or IDE extension).
-- [ck3-tiger](https://github.com/amtep/tiger): download the release matching your game
-  version and unzip it anywhere. Optional but strongly recommended; the skill uses it as a
-  validation gate. (The [CK3 Modding Toolkit](https://marketplace.visualstudio.com/items?itemName=JDeffner.ck3-modding-toolkit)
-  VS Code extension can download it for you.)
+Copy [templates/ck3/AGENTS.md](../../templates/ck3/AGENTS.md) into the mod project and fill in its paths and conventions. For Claude Code, the [CLAUDE.md adapter](../../templates/ck3/CLAUDE.md) reads the same instructions. Keep local information out of the reusable skills.
 
-## 1. Install the skill
+The agent needs the CK3 game directory, user logs, actual mod source directory, launcher descriptor, and an installed [ck3-tiger](https://github.com/amtep/tiger) executable. Workshop sources are optional. The game installation is read-only.
 
-Clone this repo, then copy the skill folder where your agent looks for skills:
+## First task
 
-```bash
-git clone https://github.com/JDeffner/paradox-ai-modding.git
-```
+Start the agent in your mod folder and request a concrete change. For example:
 
-- All projects, current user: copy `skills/ck3-modding/` into `~/.claude/skills/`
-  (Windows: `%USERPROFILE%\.claude\skills\`).
-- One mod repo only: copy it into `<mod repo>/.claude/skills/`.
+> Add a decision for independent rulers with at least 1000 prestige. It starts a hunting society event and costs 100 prestige.
 
-A symlink to your clone works too and picks up updates on `git pull`.
+The agent should read the decision schema and a working native example, implement the decision and event with localization, and run tiger. It should use the actual decision to verify the runtime path. Directly firing the event tests a different part of the feature.
 
-## 2. Give your mod repo a CLAUDE.md
+Use ck3-gui for custom windows and layout work. Use ck3-playtest for sustained live checklists. Each loads only the shared references needed for the task.
 
-Copy [`templates/CLAUDE.md`](../../templates/ck3/CLAUDE.md) into your mod repo and fill in the
-placeholders: your machine's paths (game install, logs folder, mod folder, ck3-tiger
-executable) and your mod's prefix. This is optional (the skill can detect the paths), but
-pinning them saves time at the start of every session and never mis-detects.
+## Runtime checks
 
-## 3. First session
+Use a separate non-Ironman test campaign. When authorized controls are available, the agent can operate the game under those tools' rules. Otherwise launch CK3 with -debug_mode and perform the exact steps it supplies. The agent reads logs itself afterwards.
 
-Start the agent inside your mod folder and ask for something concrete:
+Two console commands produce documentation that helps resolve exact names:
 
-> Add a decision, available to independent feudal rulers with prestige above 1000, that
-> founds a hunting society. Members get a monthly prestige modifier.
+- script_docs writes effects, triggers, scopes, and related lists to the logs directory.
+- dump_data_types writes the GUI data-binding API under logs/data_types/.
 
-What you should see the skill do, in order:
+Check timestamps after generating them. A dump from before a patch can contain obsolete signatures. Keep a baseline save before state-changing debug setup. Record fixes waiting for reload separately from fixes verified in the running game.
 
-1. Resolve the machine paths (or read them from your CLAUDE.md).
-2. Read the relevant `_*.info` schema doc and a vanilla example before writing anything.
-3. Write new, mod-prefixed files (never edits to vanilla files), plus localization for every
-   new key.
-4. Run ck3-tiger and fix what it reports.
-5. Give you exact in-game test steps and ask you to run them.
+## Agents without skill discovery
 
-If the agent starts inventing trigger names from memory instead, tell it to check
-`script_docs`; the skill's whole point is that the installed game is the source of truth.
-
-## 4. The test loop (where the payoff is)
-
-The agent can read your game logs, but only you can generate them. The rhythm that works:
-
-1. Launch CK3 with the `-debug_mode` launch option (Steam: right-click the game, Properties,
-   Launch Options).
-2. Run the console test the agent gave you (`event my_mod.1`, `effect ...`, `testevent ...`).
-3. Say "done". The agent reads `error.log` (and `database_conflicts.log`,
-   `gui_warnings.log`, ...) itself and fixes what it finds.
-
-Never paste log contents by hand; let the agent read the files. Two console commands worth
-knowing because the skill will ask for them:
-
-- `script_docs`: dumps the complete, version-exact list of every effect, trigger, scope, and
-  event target to the logs folder.
-- `dump_data_types`: dumps the GUI data-binding API (needed for custom UI work).
-
-## 5. Folder access
-
-The agent needs read access to folders outside your repo: the game install (source of truth),
-the logs folder, and optionally the Workshop folder (pattern-source mods). When the agent asks
-for access to those paths, that is expected and read-only; grant it or pre-approve the paths
-in your agent's permission settings.
-
-## Other agents
-
-The skill is plain markdown with no runtime dependencies, so any agent that supports the
-Agent Skills format can load it as-is. For agents without skill support:
-
-- Use `SKILL.md` as system context or paste it at the start of the conversation; it is a
-  router, so also attach the `references/*.md` file(s) matching your task.
-- Replace the `<game>` / `<logs>` / `<mods>` / `<workshop>` / `<tiger>` placeholders with your
-  real paths first (find-and-replace across the folder), since a context-pasted copy cannot
-  resolve them interactively.
+Supply the main SKILL.md and the reference files for the task as context. For GUI or playtesting, include the relevant specialist skill. Supply machine paths separately; do not alter maintained skill files to insert them.

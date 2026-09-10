@@ -1,20 +1,13 @@
 ---
 name: vic3-modding
-description: >-
-  Victoria 3 modding assistant covering buildings, production methods, goods, pops, laws,
-  interest groups, journal entries, events, decisions, diplomatic plays, power blocs, companies,
-  technology, localization, GUI, mod setup, validation, and debugging. Use this skill whenever
-  the user mentions Victoria 3 or Vic3, or works on files under a Victoria 3 mod's common/,
-  events/, localization/, gui/, or map_data/ folders, including .metadata/metadata.json,
-  script_docs dumps, error.log problems, on_actions, or _l_english.yml localization. Also use it
-  for questions like "why does my mod do nothing", "how do I override X", or "set up a new
-  Victoria 3 mod" when the context is Victoria 3 game files. For Crusader Kings III use the
-  ck3-modding skill instead: the two games differ in descriptor format, folder names, encoding
-  rules, and script vocabulary, so CK3 habits produce silently broken Victoria 3 mods.
-allowed-tools: Bash(python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py *)
+description: Create, change, and debug Victoria 3 mods, including buildings, production methods, laws, journal entries, events, localization, and GUI. Use for Victoria 3 scripts, metadata, validation, and documentation lookup. Does not cover Crusader Kings III or other Paradox games.
 ---
 
 # Victoria 3 Modding
+
+The maintained source is plugins/paradox-ai-modding/skills/vic3-modding/ in JDeffner/paradox-ai-modding. Keep local paths in the mod project. Edit the source repository, then update installed copies.
+
+In commands below, <skill> means the absolute directory containing this SKILL.md. Resolve it from the loaded skill location and substitute it before running commands. It is not an environment variable. The lookup script uses Python 3 with no third-party dependencies.
 
 Victoria 3 mods are Paradox (Jomini) script: `.txt` databases under `common/` and `events/`,
 `.yml` localization, and PdxGui `.gui` files. The default failure mode is **silent**. A wrong
@@ -39,7 +32,7 @@ Detect these once per session. Ask the user only when detection fails. Everywher
 Confirm the build before trusting any version-specific claim:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py stats
+python "<skill>/scripts/vic3_docs.py" stats
 ```
 
 That prints the resolved paths, the build number, folder and schema-doc counts, how many
@@ -55,7 +48,7 @@ in. Read the doc before scripting a system. Their filenames follow no single rul
 with:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py folders <folder-name-fragment>
+python "<skill>/scripts/vic3_docs.py" folders <folder-name-fragment>
 ```
 
 Only 75 of the 135 `common/` subfolders ship one, and `events/` ships none. Notably `decisions`,
@@ -72,8 +65,8 @@ modifier, event target, on_action and custom localization key the installed buil
 its supported scopes. This is the vocabulary. Never invent an effect or trigger name; check it:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find add_modifier
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find -s power_bloc
+python "<skill>/scripts/vic3_docs.py" find add_modifier
+python "<skill>/scripts/vic3_docs.py" find -s power_bloc
 ```
 
 `find` exits non-zero when an identifier does not exist, which makes it a usable gate. The six

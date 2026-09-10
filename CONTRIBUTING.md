@@ -3,8 +3,7 @@
 Corrections and additions are welcome. One bar keeps this repo useful: nothing lands on
 hearsay.
 
-This repo holds one skill per game. Say which game a change targets, and keep changes inside
-that game's `skills/<game>-modding/` tree unless you are deliberately changing both.
+The maintained skills live in `plugins/paradox-ai-modding/skills/`. Keep game-specific guidance with its game. CK3 GUI and playtesting have separate workflows; events, decisions, traits, and other systems remain references. Add a skill only when it has a distinct trigger, procedure, and result.
 
 ## Verification discipline
 
@@ -33,9 +32,13 @@ documentation, because that documentation does contain errors (`buildings.md` do
   something exists, that is a lookup, not a paragraph.
 - **Paraphrased schema.** Where a game ships a schema doc for a folder, point at it rather than
   restating it. Restating it creates a second copy that silently goes stale.
-- **Machine-specific paths.** Use the placeholders defined in each `SKILL.md` Step 0.
+- **Machine-specific paths.** Use the placeholders defined in the game skill or its environment reference.
 - **Personal or project-specific content.** "Application:" sketches in pattern notes stay
   project-neutral.
+
+## Package and workflow checks
+
+Follow [maintenance.md](guides/maintenance.md) for client validation, source ownership, and updates. Keep the two plugin manifests aligned. Mark source checks and runtime checks separately; the imported recipes are not certified by packaging them.
 
 ## Style
 
@@ -48,7 +51,7 @@ documentation, because that documentation does contain errors (`buildings.md` do
 - Say plainly when something is unverified, rather than hedging it into a claim. An honest
   "vanilla always does this, whether the engine requires it is untested" is more useful than a
   confident guess.
-- CK3 mod pattern notes follow the discipline described in `skills/ck3-modding/mods/README.md`.
+- CK3 mod pattern notes follow the discipline described in `plugins/paradox-ai-modding/skills/ck3-modding/mods/README.md`.
 
 ## What is especially welcome
 

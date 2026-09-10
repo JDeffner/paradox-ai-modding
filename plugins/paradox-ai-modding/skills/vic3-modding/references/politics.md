@@ -12,8 +12,8 @@ Several folders in this area ship **no** schema doc, so vanilla is the reference
 before you start:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py folders law
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py folders interest
+python "<skill>/scripts/vic3_docs.py" folders law
+python "<skill>/scripts/vic3_docs.py" folders interest
 ```
 
 ## Laws and law groups

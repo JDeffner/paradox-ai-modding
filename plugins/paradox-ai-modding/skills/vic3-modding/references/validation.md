@@ -112,7 +112,7 @@ The dumps are version-exact for the build that produced them, which is what make
 trustworthy. They are also the thing most likely to be silently out of date.
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py stats
+python "<skill>/scripts/vic3_docs.py" stats
 ```
 
 reports each dump's age and warns past 30 days. When a dump is older than the last game patch,

@@ -47,18 +47,9 @@ l_english:
  my_mod.0001.a: "Interesting!"
 ```
 
-## Animations List
+## Portrait animations
 
-Common portrait animations used in `left_portrait` / `right_portrait`:
-
-**Personality animations:**
-personality_bold, personality_callous, personality_compassionate, personality_content, personality_cynical, personality_dishonorable, personality_forgiving, personality_greedy, personality_honorable, personality_irrational, personality_rational, personality_zealous, personality_brave, personality_craven
-
-**War animations:**
-war_over_win, war_over_loss, war_standing_army
-
-**Emotion/state animations:**
-pain, fear, anger, worry, sadness, schadenfreude, happiness, boredom, flirtation, shock, disgust, admiration, prison, sick, dismissal, paranoia, shame, grief, rage, stress, ecstasy, mad
+Look up animation names in the installed portrait animation definitions and a working event caller. Do not use a copied name catalog as evidence that an animation exists on the current patch. Verify `personality_rational` before using the minimal example above.
 
 ### Portrait Features
 
@@ -107,15 +98,17 @@ artifact = {
 The most common type is `character_event`. Other types exist for specialized presentation:
 
 ### Letter Events
+
+This fragment uses the my_mod namespace declared above. Define its opening, description, and option localization keys.
 ```
-my_letter = {
+my_mod.0002 = {
     type = letter_event
     sender = scope:letter_sender    # Required for letter_event
-    opening = { ... }
-    desc = { ... }
+    opening = my_mod.0002.opening
+    desc = my_mod.0002.desc
 
     option = {
-        name = my_letter.a
+        name = my_mod.0002.a
     }
 }
 ```

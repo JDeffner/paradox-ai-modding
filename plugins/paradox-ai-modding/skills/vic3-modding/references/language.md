@@ -70,7 +70,7 @@ The complete authoritative list of global prefixes is in the event targets dump,
 marked `Global Link: yes`. There are 45 of them:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find c
+python "<skill>/scripts/vic3_docs.py" find c
 ```
 
 ## Scopes
@@ -91,7 +91,7 @@ Every effect and trigger in the dumps names its supported scopes, so a scope que
 answerable:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find add_modifier
+python "<skill>/scripts/vic3_docs.py" find add_modifier
 ```
 
 ## Iteration and the scope_ infix
@@ -159,7 +159,7 @@ times across all of `common/` and `events/` in 1.13.10. Porting CK3 flag logic p
 that simply do not exist, and the dumps will confirm that:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find set_country_flag   # not found
+python "<skill>/scripts/vic3_docs.py" find set_country_flag   # not found
 ```
 
 Use variables instead. Vanilla usage counts: `has_variable` 6,358, `set_variable` 2,991,

@@ -102,8 +102,8 @@ The full list of 260 on_actions, each with its expected scope and whether the en
 script defines it, is in the dumps:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find on_monthly_pulse_country
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find -s pulse
+python "<skill>/scripts/vic3_docs.py" find on_monthly_pulse_country
+python "<skill>/scripts/vic3_docs.py" find -s pulse
 ```
 
 `From Code: Yes` means an engine hook. `From Code: No` means vanilla script defines it, so it is

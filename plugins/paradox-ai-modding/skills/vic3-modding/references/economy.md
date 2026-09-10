@@ -32,7 +32,7 @@ modifiers they apply.
 Schema docs exist for every link in this chain:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py folders production
+python "<skill>/scripts/vic3_docs.py" folders production
 ```
 
 ## Buildings
@@ -104,7 +104,7 @@ Two constraints from the doc that fail quietly:
 Verify every modifier key you write:
 
 ```bash
-python ${CLAUDE_SKILL_DIR}/scripts/vic3_docs.py find building_throughput_add
+python "<skill>/scripts/vic3_docs.py" find building_throughput_add
 ```
 
 Modifiers come in three tiers. Static and dynamic modifiers carry a display name. "Potential

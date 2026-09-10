@@ -1,0 +1,9 @@
+{
+  "name": "paradox-ai-modding",
+  "version": "0.1.0",
+  "description": "Grounded CK3 and Victoria 3 modding, CK3 interface work, and evidence-based playtesting.",
+  "author": { "name": "Joel Deffner" },
+  "repository": "https://github.com/JDeffner/paradox-ai-modding",
+  "license": "GPL-3.0",
+  "skills": "./skills/"
+}

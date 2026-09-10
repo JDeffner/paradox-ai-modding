@@ -13,21 +13,9 @@ waiting for the game to load once.
 
 ## 1. Install the skill
 
-Copy or symlink `skills/vic3-modding/` into one of:
+Use the [plugin or direct installation instructions](../../README.md#install-from-a-local-checkout). The Victoria 3 skill is independent of the CK3 skills. Start a new session after installation.
 
-| Location | Scope |
-|---|---|
-| `~/.claude/skills/vic3-modding/` | every project on this machine |
-| `<mod repo>/.claude/skills/vic3-modding/` | that one mod repo |
-
-On Windows the user-level path is `C:\Users\<you>\.claude\skills\`.
-
-Skills are read at startup, so **restart Claude Code** afterwards. If the skill does not seem to
-exist, that is almost always the reason.
-
-Other agents: the skill is plain markdown. `SKILL.md` works as pasted context, and the reference
-files work as attachments. Only the `${CLAUDE_SKILL_DIR}` substitution in the script paths is
-Claude Code specific, and you can replace it with a real path.
+Lookup commands use Python 3 and the absolute path of the loaded skill directory. They work in Codex and Claude Code without client-specific substitutions.
 
 ## 2. Generate the game's own documentation
 
@@ -53,7 +41,7 @@ you are running. This is what stops an agent inventing effect names.
 ## 3. Check that everything resolves
 
 ```bash
-python skills/vic3-modding/scripts/vic3_docs.py stats
+python plugins/paradox-ai-modding/skills/vic3-modding/scripts/vic3_docs.py stats
 ```
 
 Expected output names your game folder, your docs folder, the build number, and a per-file
@@ -89,7 +77,7 @@ or Documents lives on a non-default drive.
 
 Tiger tracks Victoria 3 a patch or two behind and admits to some false positives, so treat it as
 a strong signal rather than a verdict. Details in
-[`references/validation.md`](../skills/vic3-modding/references/validation.md).
+[`references/validation.md`](../../plugins/paradox-ai-modding/skills/vic3-modding/references/validation.md).
 
 ## 5. Set up the mod repo
 
