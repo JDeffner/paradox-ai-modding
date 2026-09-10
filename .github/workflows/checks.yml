@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -29,7 +29,7 @@ jobs:
     name: check_compat.sh
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: shellcheck
         run: shellcheck plugins/paradox-ai-modding/skills/ck3-modding/scripts/check_compat.sh tests/test_check_compat.sh
       - name: fixture mods
@@ -39,6 +39,6 @@ jobs:
     name: markdown links
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: relative links resolve
         run: python tests/check_links.py
